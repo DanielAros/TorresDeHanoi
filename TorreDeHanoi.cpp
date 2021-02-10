@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 //Declaración de los métodos
 void comenzar(int[], int[], int[]);
 void mostrarPila(int[], int[], int[]);
@@ -20,12 +19,13 @@ int consultarCimaC(int[]);
 
 //Declaración de las variables globales.
 int numDiscos, indiceCimaA, indiceCimaB, indiceCimaC;
+//bool primerMovimientoB = false, primerMovimientoC = false;
 
 int main(){
 	int i = 0;
 	//Reglas del juego
 	cout<<"REGLAS DEL JUEGO:\n"<<"1.Puedes mover solamente un disco a la vez. \n2.Ningun disco puede estar encima de un disco mas pequeno."<<endl;
-	cout<<"Ingrese el numero de discos con los que se jugara: ";
+	cout<<"\nIngrese el numero de discos con los que se jugara: ";
 	cin>>numDiscos;
 	
 	//Creación de las pilas. Representan las varillas A,B,C.
@@ -124,8 +124,7 @@ void apilarA(int e, int p[]){
 		}else{
 			p[indiceCimaA] = e;
 			indiceCimaA = indiceCimaA+1;
-			/*
-			if(p[indiceCimaA] < e){
+			/*if(p[indiceCimaA-1] < e){
 				cout<<"El movimiento es incorrecto"<<endl;
 			}else{
 				p[indiceCimaA] = e;
@@ -140,12 +139,12 @@ void apilarB(int e, int p[]){
 		}else{
 			p[indiceCimaB] = e;
 			indiceCimaB = indiceCimaB+1;
-			/*
-			if(p[indiceCimaB] < e){
+			/*if((p[indiceCimaB-1] < e) && primerMovimientoB){
 				cout<<"El movimiento es incorrecto"<<endl;
 			}else{
 				p[indiceCimaB] = e;
 				indiceCimaB = indiceCimaB+1;
+				primerMovimientoB = true;
 			}*/
 		}
 }
@@ -157,11 +156,12 @@ void apilarC(int e, int p[]){
 			p[indiceCimaC] = e;
 			indiceCimaC = indiceCimaC+1;
 			/*
-			if(p[indiceCimaC] < e){
+			if((p[indiceCimaC-1] < e) && primerMovimientoC){
 				cout<<"El movimiento es incorrecto"<<endl;
 			}else{
 				p[indiceCimaC] = e;
 				indiceCimaC = indiceCimaC+1;
+				primerMovimientoC = true;
 			}*/
 		}
 }
@@ -198,7 +198,6 @@ int consultarCimaA(int p[]){
 	if(indiceCimaA == 0){
 		cout<<"Pila vacia"<<endl;
 	}else{
-		cout<<"indice cima A: "<<indiceCimaA<<endl;
 		e = p[indiceCimaA-1];
 	}
 	return e;
