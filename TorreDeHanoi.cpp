@@ -1,5 +1,4 @@
 #include <iostream>
-#include <math.h>
 
 using namespace std;
 
@@ -16,13 +15,15 @@ void desapilarC(int[]);
 int consultarCimaA(int[]);
 int consultarCimaB(int[]);
 int consultarCimaC(int[]);
+bool esPilaVaciaA();
+bool esPilaVaciaB();
+bool esPilaVaciaC();
 
 //Declaración de las variables globales.
-int numDiscos, indiceCimaA, indiceCimaB, indiceCimaC;
-//bool primerMovimientoB = false, primerMovimientoC = false;
+int numDiscos, indiceCimaA, indiceCimaB, indiceCimaC, opcionDesapilar, opcionApilar;
+bool finalizarJuego = false, pilaDesapilada = true, movimientoCorrecto = true;
 
 int main(){
-	int i = 0;
 	//Reglas del juego
 	cout<<"REGLAS DEL JUEGO:\n"<<"1.Puedes mover solamente un disco a la vez. \n2.Ningun disco puede estar encima de un disco mas pequeno."<<endl;
 	cout<<"\nIngrese el numero de discos con los que se jugara: ";
@@ -34,14 +35,9 @@ int main(){
 	int pilaC[numDiscos];
 	
 	comenzar(pilaA, pilaB, pilaC);//En este método se le asignan los valores a las pilas. 
-	mostrarPila(pilaA, pilaB, pilaC);//Método que muestra en consola las pilas.
-	
-	int movimientosPer = pow(2, numDiscos)-1; //Se calculan los movimientos con la formula 2^n-1 (n es el numero de discos).
-	
-	do{ 
+	do{
 		menu(pilaA, pilaB, pilaC);
-		i++;
-	}while(i < movimientosPer);
+	}while(finalizarJuego == false);
 	
 	return 0;
 }
@@ -64,9 +60,12 @@ void comenzar(int pilaA[], int pilaB[], int pilaC[]){
 }
 
 void menu(int pilaA[], int pilaB[], int pilaC[]){
-	int opcionDesapilar, opcionApilar;
 	int e;
+	pilaDesapilada = true;
+	movimientoCorrecto = true;
 	
+	system("cls");
+	mostrarPila(pilaA, pilaB, pilaC);//Método que muestra en consola las pilas.
 	cout<<"Escoja la varilla a la que se le desapilara un disco: \n 1. A \n 2. B \n 3. C"<<endl;
 	cin>>opcionDesapilar;
 	cout<<"Escoja la varilla a la que se apilara un disco: \n 1. A \n 2. B \n 3. C"<<endl;
@@ -99,76 +98,104 @@ void menu(int pilaA[], int pilaB[], int pilaC[]){
 			apilarC(e, pilaC);
 			break;
 	}
-		
+	
+	//Si se apila un elemento en una pila llena, entonces el elemento desapilado de la pila a despilar se devuelve a su lugar. 
+	if(movimientoCorrecto == false){
+		if(opcionDesapilar == 1){
+			apilarA(e, pilaA);
+		}else if(opcionDesapilar == 2){
+			apilarB(e, pilaB);
+		}else{
+			apilarC(e, pilaC);
+		}
+	}
+	
 	mostrarPila(pilaA, pilaB, pilaC);//Se muestra las pilas ya modificadas.
+	int op;
+	cout<<"Desea terminar el juego: 1.Si 2.No: ";
+	cin>>op;
+	
+	if(op == 1){
+		finalizarJuego = true;
+	}
 }
 
 void mostrarPila(int pilaA[], int pilaB[], int pilaC[]){
-	cout<<"A"<<" B"<<" C"<<endl;
-	
 	int aux = numDiscos-1;//Esta variable es auxiliar para mostrar ascendentemente los valores que almacena cada posicion de la pila.
-	
+	cout<<"A"<<" B"<<" C"<<endl;
 	for(int i = 0; i < numDiscos; i++){
 		cout<<pilaA[aux]<<" "<<pilaB[aux]<<" "<<pilaC[aux]<<endl;
 		aux = aux-1;
 	}
-
-	/*cout<<"\nCima A: "<<indiceCimaA<<endl;
-	cout<<"Cima B: "<<indiceCimaB<<endl;
-	cout<<"Cima C: "<<indiceCimaC<<endl;*/
 }
 
 void apilarA(int e, int p[]){
-		if(indiceCimaA == numDiscos){
-			cout<<"Espacio insuficiente"<<endl;
-		}else{
-			p[indiceCimaA] = e;
-			indiceCimaA = indiceCimaA+1;
-			/*if(p[indiceCimaA-1] < e){
-				cout<<"El movimiento es incorrecto"<<endl;
+	if(indiceCimaA == numDiscos){
+		cout<<"Espacio insuficiente"<<endl;
+	}else{
+		if(pilaDesapilada){ //Si la pila en la que se desapilo el elemento no se encuentra llena o vacia se procede a apilar, de lo contrario no se apila.
+			if(p[indiceCimaA-1] < e){
+				if(esPilaVaciaA()){
+					p[indiceCimaA] = e;
+					indiceCimaA = indiceCimaA+1;
+				}else{
+					cout<<"El movimiento es incorrecto"<<endl;
+					movimientoCorrecto = false;
+				}
 			}else{
 				p[indiceCimaA] = e;
 				indiceCimaA = indiceCimaA+1;
-			}*/
+			}
 		}
+	}
 }
 
 void apilarB(int e, int p[]){
-		if(indiceCimaB == numDiscos){
-			cout<<"Espacio insuficiente"<<endl;
-		}else{
-			p[indiceCimaB] = e;
-			indiceCimaB = indiceCimaB+1;
-			/*if((p[indiceCimaB-1] < e) && primerMovimientoB){
-				cout<<"El movimiento es incorrecto"<<endl;
+	if(indiceCimaB == numDiscos){
+		cout<<"Espacio insuficiente"<<endl;
+	}else{
+		if(pilaDesapilada){//Si la pila en la que se desapilo el elemento no se encuentra llena o vacia se procede a apilar, de lo contrario no se apila.
+			if((p[indiceCimaB-1] < e)){
+				if(esPilaVaciaB()){
+					p[indiceCimaB] = e;
+					indiceCimaB = indiceCimaB+1;
+				}else{
+					cout<<"El movimiento es incorrecto"<<endl;
+					movimientoCorrecto = false;
+				}
 			}else{
 				p[indiceCimaB] = e;
 				indiceCimaB = indiceCimaB+1;
-				primerMovimientoB = true;
-			}*/
+			}
 		}
+	}
 }
 
 void apilarC(int e, int p[]){
-		if(indiceCimaC == numDiscos){
-			cout<<"Espacio insuficiente"<<endl;
-		}else{
-			p[indiceCimaC] = e;
-			indiceCimaC = indiceCimaC+1;
-			/*
-			if((p[indiceCimaC-1] < e) && primerMovimientoC){
-				cout<<"El movimiento es incorrecto"<<endl;
+	if(indiceCimaC == numDiscos){
+		cout<<"Espacio insuficiente"<<endl;
+	}else{
+		if(pilaDesapilada){//Si la pila en la que se desapilo el elemento no se encuentra llena o vacia se procede a apilar, de lo contrario no se apila.
+			if(p[indiceCimaC-1] < e){
+				if(esPilaVaciaC()){
+					p[indiceCimaC] = e;
+					indiceCimaC = indiceCimaC+1;
+				}else{
+					cout<<"El movimiento es incorrecto"<<endl;
+					movimientoCorrecto = false;
+				}
 			}else{
 				p[indiceCimaC] = e;
 				indiceCimaC = indiceCimaC+1;
-				primerMovimientoC = true;
-			}*/
+			}
 		}
+	}
 }
 
 void desapilarA(int p[]){
-	if(indiceCimaA == 0){
+	if(esPilaVaciaA()){
 		cout<<"Pila vacia"<<endl;
+		pilaDesapilada = false;
 	}else{
 		p[indiceCimaA-1] = 0;
 		indiceCimaA = indiceCimaA-1;
@@ -176,8 +203,9 @@ void desapilarA(int p[]){
 }
 
 void desapilarB(int p[]){
-	if(indiceCimaB == 0){
+	if(esPilaVaciaB()){
 		cout<<"Pila vacia"<<endl;
+		pilaDesapilada = false;
 	}else{
 		p[indiceCimaB-1] = 0;
 		indiceCimaB = indiceCimaB-1;
@@ -185,8 +213,9 @@ void desapilarB(int p[]){
 }
 
 void desapilarC(int p[]){
-	if(indiceCimaC == 0){
+	if(esPilaVaciaC()){
 		cout<<"Pila vacia"<<endl;
+		pilaDesapilada = false;
 	}else{
 		p[indiceCimaC-1] = 0;
 		indiceCimaC = indiceCimaC-1;
@@ -195,7 +224,7 @@ void desapilarC(int p[]){
 
 int consultarCimaA(int p[]){
 	int e;
-	if(indiceCimaA == 0){
+	if(esPilaVaciaA()){
 		cout<<"Pila vacia"<<endl;
 	}else{
 		e = p[indiceCimaA-1];
@@ -205,7 +234,7 @@ int consultarCimaA(int p[]){
 
 int consultarCimaB(int p[]){
 	int e;
-	if(indiceCimaB == 0){
+	if(esPilaVaciaB()){
 		cout<<"Pila vacia"<<endl;
 	}else{
 		e = p[indiceCimaB-1];
@@ -215,10 +244,25 @@ int consultarCimaB(int p[]){
 
 int consultarCimaC(int p[]){
 	int e;
-	if(indiceCimaC == 0){
+	if(esPilaVaciaC()){
 		cout<<"Pila vacia"<<endl;
 	}else{
 		e = p[indiceCimaC-1];
 	}
 	return e;
+}
+
+bool esPilaVaciaA(){
+	
+	return indiceCimaA == 0;
+}
+
+bool esPilaVaciaB(){
+	
+	return indiceCimaB == 0;
+}
+
+bool esPilaVaciaC(){
+	
+	return indiceCimaC == 0;
 }
